@@ -15,6 +15,7 @@ const app = () => {
 
     //Time Display - remember this is just the h3
     const timeDisplay = document.querySelector('.time-display')
+    const timeSelect = document.querySelectorAll('.time-select button')
 
     //We need to get the length of the outline of the svg
     //get length of the outline
@@ -27,10 +28,8 @@ const app = () => {
     outline.style.strokeDasharray = outlineLength; /* this leaves (value) amount of px empty along the path. outlineLenght is current setting, try 100px */
     outline.style.strokeDashoffset = outlineLength;
 
-    //play sound
-    play.addEventListener("click",() => {
-        CheckPlaying(song);
-    });
+    
+
 
     // Create a function to stop and play the sounds
     const CheckPlaying = song => {
@@ -46,6 +45,29 @@ const app = () => {
     };
 
 
+    // add ability to pick different sounds
+    sounds.forEach (sound => {
+        sound.addEventListener('click',function(){
+            song.src = this.getAttribute('data-sound'); // add the attribute that we have in html
+            video.src = this.getAttribute('data-video');
+        })
+    })
+
+    //play sound
+    play.addEventListener("click",() => {
+        CheckPlaying(song);
+    });
+
+    // select sound (we built this AFTER testing that we can play sound)
+    timeSelect.forEach(option => {
+        option.addEventListener('click',function() {
+            // we want to change the duration 
+            fakeDuration = this.getAttribute('data-time'); // updates fakeDuration with data-time according to click from the html elements featuring data-time attributes, pulling the value of those attributes 
+            timeDisplay.textContent = `${Math.floor(fakeDuration / 60)}:${Math.floor(fakeDuration % 60)}`;
+        });
+    });
+
+
     // track time
     song.ontimeupdate = () => {
         let currentTime = song.currentTime;
@@ -58,9 +80,25 @@ const app = () => {
         outline.style.strokeDashoffset = progress; 
 
     
-    // animate the text 
-        timeDisplay.textContent = '${minutes}:${seconds}';
+    // animate the time remaining 
+        timeDisplay.textContent = `${minutes}:${seconds}` // use backticks !!!
+
+    // handle timer end
+    if (currentTime >= fakeDuration) {
+        song.pause();
+        song.currentTime = 0;
+        play.src = "./svg/play.svg"; // why do we need to change the source?
+        video.pause();
     }
+ 
+ 
+ 
+ 
+ 
+    }
+
+
+
 };
 
 app();
